@@ -8,6 +8,7 @@ import {
   Plus,
   Minus,
   X,
+  CheckCircle,
 } from "lucide-react";
 import { QUENTINHAS } from "./data.js";
 import neide from "./assets/neide.jpg";
@@ -15,6 +16,7 @@ import neide from "./assets/neide.jpg";
 function App() {
   const [cart, setCart] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // Novo estado para o modal de sucesso
   const [customer, setCustomer] = useState({
     name: "",
     phone: "",
@@ -34,6 +36,12 @@ function App() {
       }
       return [...prev, { ...quentinha, quantity: 1 }];
     });
+
+    // Mostrar o modal de sucesso por 2 segundos
+    setShowSuccessModal(true);
+    setTimeout(() => {
+      setShowSuccessModal(false);
+    }, 2000); // 2000ms = 2 segundos
   };
 
   const removeFromCart = (id) => {
@@ -91,7 +99,8 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
+      {/* Adicionado 'fixed', 'top-0', 'left-0', 'right-0', 'z-40' para fixar o header */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -100,6 +109,7 @@ function App() {
                   <img
                     src={neide}
                     className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full object-cover"
+                    alt="Logo Neide Congelados"
                   />
                 </span>
               </div>
@@ -122,149 +132,152 @@ function App() {
           </div>
         </div>
       </header>
-
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-orange-400 to-red-400 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-5xl font-bold mb-4">
-            🔥 QUENTINHAS Congeladas Premium
-          </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Refeições completas, nutritivas e deliciosas. Descongele, aqueça e
-            saborei.
-          </p>
-          <div className="flex justify-center items-center space-x-8 text-lg">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">⚡</span>
-              <span>Prático e Rápido</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">🥩</span>
-              <span>Proteínas Premium</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">❄️</span>
-              <span>Sempre Fresquinho</span>
+      {/* Adicionado padding-top para compensar o header fixo */}
+      <div className="pt-28">
+        {" "}
+        {/* Ajuste este valor conforme a altura do seu header */}
+        {/* Hero Section */}
+        <section className="bg-gradient-to-r from-orange-400 to-red-400 text-white py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-5xl font-bold mb-4">
+              🔥 QUENTINHAS Congeladas Premium
+            </h2>
+            <p className="text-xl mb-8 max-w-2xl mx-auto">
+              Refeições completas, nutritivas e deliciosas. Descongele, aqueça e
+              saborei.
+            </p>
+            <div className="flex justify-center items-center space-x-8 text-lg">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">⚡</span>
+                <span>Prático e Rápido</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">🥩</span>
+                <span>Proteínas Premium</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">❄️</span>
+                <span>Sempre Fresquinho</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Products Section */}
-          <div className="lg:col-span-2">
-            <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-              🍽️ Nossos Sabores
-            </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              {QUENTINHAS.map((quentinha) => (
-                <div
-                  key={quentinha.id}
-                  className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow"
-                >
-                  <img
-                    src={quentinha.image}
-                    alt={quentinha.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-6">
-                    <h4 className="text-xl font-bold text-gray-800 mb-2">
-                      {quentinha.name}
-                    </h4>
-                    <div className="bg-orange-100 border-l-4 border-orange-500 p-3 mb-4">
-                      <p className="text-sm text-orange-700 font-semibold mb-1">
-                        🥩 Proteína: {quentinha.protein}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {quentinha.ingredients}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-green-600">
-                        R$ {quentinha.price.toFixed(2)}
-                      </span>
-                      <button
-                        onClick={() => addToCart(quentinha)}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-full hover:from-orange-600 hover:to-red-600 transition-all font-semibold shadow-lg hover:shadow-xl"
-                      >
-                        Adicionar ao Carrinho
-                      </button>
+        </section>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Products Section */}
+            <div className="lg:col-span-2">
+              <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+                🍽️ Nossos Sabores
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                {QUENTINHAS.map((quentinha) => (
+                  <div
+                    key={quentinha.id}
+                    className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow"
+                  >
+                    <img
+                      src={quentinha.image}
+                      alt={quentinha.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-6">
+                      <h4 className="text-xl font-bold text-gray-800 mb-2">
+                        {quentinha.name}
+                      </h4>
+                      <div className="bg-orange-100 border-l-4 border-orange-500 p-3 mb-4">
+                        <p className="text-sm text-orange-700 font-semibold mb-1">
+                          🥩 Proteína: {quentinha.protein}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {quentinha.ingredients}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl font-bold text-green-600">
+                          R$ {quentinha.price.toFixed(2)}
+                        </span>
+                        <button
+                          onClick={() => addToCart(quentinha)}
+                          className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-full hover:from-orange-600 hover:to-red-600 transition-all font-semibold shadow-lg hover:shadow-xl"
+                        >
+                          Adicionar ao Carrinho
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Customer Form */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 h-fit">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              📝 Seus Dados
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <User className="w-4 h-4 inline mr-2" />
-                  Nome Completo
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={customer.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Seu nome completo"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Phone className="w-4 h-4 inline mr-2" />
-                  Telefone
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={customer.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Mail className="w-4 h-4 inline mr-2" />
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={customer.email}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="seu.email@exemplo.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <MapPin className="w-4 h-4 inline mr-2" />
-                  Endereço de Entrega
-                </label>
-                <textarea
-                  name="address"
-                  value={customer.address}
-                  onChange={handleInputChange}
-                  rows="3"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="Rua, número, bairro, cidade, CEP"
-                />
+            {/* Customer Form */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 h-fit">
+              <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                📝 Seus Dados
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <User className="w-4 h-4 inline mr-2" />
+                    Nome Completo
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={customer.name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Seu nome completo"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Phone className="w-4 h-4 inline mr-2" />
+                    Telefone
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={customer.phone}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Mail className="w-4 h-4 inline mr-2" />
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={customer.email}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="seu.email@exemplo.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <MapPin className="w-4 h-4 inline mr-2" />
+                    Endereço de Entrega
+                  </label>
+                  <textarea
+                    name="address"
+                    value={customer.address}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Rua, número, bairro, cidade, CEP"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Modal */}
+      </div>{" "}
+      {/* Fim do padding-top div */}
+      {/* Modal de Resumo do Pedido */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -367,6 +380,29 @@ function App() {
           </div>
         </div>
       )}
+      {/* Novo Modal de Sucesso (Item Adicionado) */}
+      {showSuccessModal && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-down">
+          <CheckCircle className="w-6 h-6" />
+          <span className="font-semibold">Item adicionado ao carrinho!</span>
+        </div>
+      )}
+      {/* Adicione estilos para a animação do modal de sucesso */}
+      <style>{`
+        @keyframes fade-in-down {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-down {
+          animation: fade-in-down 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
