@@ -112,7 +112,7 @@ export  const QUENTINHAS = [
     name: "Quentinha Carne do Sol",
     protein: "Carne do sol assada",
     ingredients: "Carne do sol assada, purê de banana da terra, arroz e mix de legumes",
-    price: 20,
+    price: 25,
     image: CarneSol
   },
   {
@@ -120,7 +120,7 @@ export  const QUENTINHAS = [
     name: "Quentinha Tilápia com Ervas",
     protein: "Filé de tilápia com molho de ervas",
     ingredients: "Filé de tilápia com molho de ervas, purê de banana da terra, arroz e mix de legumes",
-    price: 20,
+    price: 25,
     image: FileTilapia
   },
   {
@@ -128,7 +128,7 @@ export  const QUENTINHAS = [
     name: "Quentinha Tilápia Cremosa",
     protein: "Filé de tilápia com legumes e molho cremoso",
     ingredients: "Filé de tilápia com legumes e molho cremoso, purê de abóbora e arroz",
-    price: 20,
+    price: 25,
     image: FileTilapia2
   },
   {
