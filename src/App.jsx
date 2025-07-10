@@ -8,7 +8,10 @@ import {
   Plus,
   Minus,
   X,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
+import axios from "axios"; // Importar axios
 import { QUENTINHAS } from "./data.js";
 import neide from "./assets/neide.jpg";
 
@@ -21,7 +24,14 @@ function App() {
     email: "",
     address: "",
   });
+  const [isLoading, setIsLoading] = useState(false); // Estado para loading
+  const [message, setMessage] = useState({ type: "", text: "" }); // Estado para mensagens de feedback
 
+  // URL do seu Google Apps Script implantado
+  // VOCÊ DEVE SUBSTITUIR ESTE VALOR PELA URL REAL DO SEU SCRIPT
+
+  const GOOGLE_SHEETS_WEB_APP_URL =
+    "https://script.google.com/macros/s/AKfycbxCD-eJ_X5VcbqEtcEL_O-9cPKEW1in3K53YuYxtZKiGPWTxP1XkQPL885JepDEakz-/exec";
   const addToCart = (quentinha) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === quentinha.id);
@@ -59,37 +69,106 @@ function App() {
     setCustomer((prev) => ({ ...prev, [name]: value }));
   };
 
-  const sendToWhatsApp = () => {
-    const whatsappNumber = "557399825-3365";
+  const sendOrderToGoogleSheets = async (orderData) => {
+    try {
+      setIsLoading(true); // Inicia o loading
+      setMessage({ type: "", text: "" }); // Limpa mensagens anteriores
 
-    let message = `🍽️ *NOVO PEDIDO - QUENTINHAS CONGELADAS*\n\n`;
-    message += `👤 *Cliente:* ${customer.name}\n`;
-    message += `📱 *Telefone:* ${customer.phone}\n`;
-    message += `📧 *Email:* ${customer.email}\n`;
-    message += `📍 *Endereço:* ${customer.address}\n\n`;
+      const response = await axios.post(GOOGLE_SHEETS_WEB_APP_URL, orderData);
 
-    message += `🛒 *ITENS DO PEDIDO:*\n`;
+      if (response.data.result === "success") {
+        setMessage({
+          type: "success",
+          text: "Pedido enviado para a planilha com sucesso!",
+        });
+        return true;
+      } else {
+        setMessage({
+          type: "error",
+          text: `Erro ao enviar para a planilha: ${
+            response.data.error || "Erro desconhecido"
+          }`,
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Erro ao enviar para o Google Sheets:", error);
+      setMessage({
+        type: "error",
+        text: `Erro de conexão ao enviar para a planilha: ${error.message}`,
+      });
+      return false;
+    } finally {
+      setIsLoading(false); // Finaliza o loading
+    }
+  };
+
+  const sendToWhatsAppAndSheets = async () => {
+    // Validação básica
+    if (cart.length === 0 || !customer.name || !customer.phone) {
+      setMessage({
+        type: "error",
+        text: "Por favor, preencha seu nome, telefone e adicione itens ao carrinho.",
+      });
+      return;
+    }
+
+    // 1. Preparar mensagem para WhatsApp
+    const whatsappNumber = "557399825-3365"; // Seu número de WhatsApp
+    let whatsappMessage = `🍽️ *NOVO PEDIDO - QUENTINHAS CONGELADAS*\n\n`;
+    whatsappMessage += `👤 *Cliente:* ${customer.name}\n`;
+    whatsappMessage += `📱 *Telefone:* ${customer.phone}\n`;
+    whatsappMessage += `📧 *Email:* ${customer.email || "Não informado"}\n`;
+    whatsappMessage += `📍 *Endereço:* ${
+      customer.address || "Não informado"
+    }\n\n`;
+
+    whatsappMessage += `🛒 *ITENS DO PEDIDO:*\n`;
     cart.forEach((item) => {
-      message += `• ${item.name} (x${item.quantity}) - R$ ${(
+      whatsappMessage += `• ${item.name} (x${item.quantity}) - R$ ${(
         item.price * item.quantity
       ).toFixed(2)}\n`;
     });
 
-    message += `\n💰 *TOTAL: R$ ${getTotalPrice().toFixed(2)}*`;
+    whatsappMessage += `\n💰 *TOTAL: R$ ${getTotalPrice().toFixed(2)}*`;
 
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
+    const encodedWhatsAppMessage = encodeURIComponent(whatsappMessage);
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedWhatsAppMessage}`;
 
-    window.open(whatsappUrl, "_blank");
+    // 2. Preparar dados para Google Sheets
+    const orderItemsForSheet = cart
+      .map((item) => `${item.name} (x${item.quantity})`)
+      .join(", ");
 
-    // Limpar carrinho e dados após envio
-    setCart([]);
-    setCustomer({ name: "", phone: "", email: "", address: "" });
-    setIsModalOpen(false);
+    const sheetsData = {
+      timestamp: new Date().toLocaleString("pt-BR"),
+      customerName: customer.name,
+      customerPhone: customer.phone,
+      customerEmail: customer.email,
+      customerAddress: customer.address,
+      orderItems: orderItemsForSheet,
+      totalPrice: getTotalPrice().toFixed(2),
+    };
+
+    // 3. Enviar para Google Sheets
+    const sheetsSuccess = await sendOrderToGoogleSheets(sheetsData);
+
+    if (sheetsSuccess) {
+      // 4. Se o envio para Sheets for bem-sucedido, abrir WhatsApp
+      window.open(whatsappUrl, "_blank");
+
+      // Limpar carrinho e dados após envio bem-sucedido para ambos
+      setCart([]);
+      setCustomer({ name: "", phone: "", email: "", address: "" });
+      setIsModalOpen(false);
+    } else {
+      // Se houver erro no Sheets, a mensagem de erro já foi definida
+      // Não limpar o carrinho para que o usuário possa tentar novamente
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 font-inter">
       {/* Header */}
       <header className="bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
@@ -100,11 +179,12 @@ function App() {
                   <img
                     src={neide}
                     className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full object-cover"
+                    alt="Neide Congelados Logo"
                   />
                 </span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Neide congelados</h1>
+                <h1 className="text-3xl font-bold">Neide Congelados</h1>
                 <p className="text-orange-100">
                   O sabor caseiro para sua praticidade total!
                 </p>
@@ -131,9 +211,9 @@ function App() {
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Refeições completas, nutritivas e deliciosas. Descongele, aqueça e
-            saborei.
+            saboreie.
           </p>
-          <div className="flex justify-center items-center space-x-8 text-lg">
+          <div className="flex justify-center items-center space-x-8 text-lg flex-wrap gap-4">
             <div className="flex items-center space-x-2">
               <span className="text-2xl">⚡</span>
               <span>Prático e Rápido</span>
@@ -172,7 +252,7 @@ function App() {
                     <h4 className="text-xl font-bold text-gray-800 mb-2">
                       {quentinha.name}
                     </h4>
-                    <div className="bg-orange-100 border-l-4 border-orange-500 p-3 mb-4">
+                    <div className="bg-orange-100 border-l-4 border-orange-500 p-3 mb-4 rounded-md">
                       <p className="text-sm text-orange-700 font-semibold mb-1">
                         🥩 Proteína: {quentinha.protein}
                       </p>
@@ -204,40 +284,54 @@ function App() {
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   <User className="w-4 h-4 inline mr-2" />
                   Nome Completo
                 </label>
                 <input
                   type="text"
+                  id="name"
                   name="name"
                   value={customer.name}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="Seu nome completo"
+                  required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   <Phone className="w-4 h-4 inline mr-2" />
                   Telefone
                 </label>
                 <input
                   type="tel"
+                  id="phone"
                   name="phone"
                   value={customer.phone}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="(11) 99999-9999"
+                  required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   <Mail className="w-4 h-4 inline mr-2" />
                   Email
                 </label>
                 <input
                   type="email"
+                  id="email"
                   name="email"
                   value={customer.email}
                   onChange={handleInputChange}
@@ -246,11 +340,15 @@ function App() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   <MapPin className="w-4 h-4 inline mr-2" />
                   Endereço de Entrega
                 </label>
                 <textarea
+                  id="address"
                   name="address"
                   value={customer.address}
                   onChange={handleInputChange}
@@ -267,14 +365,14 @@ function App() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h3 className="text-2xl font-bold text-gray-800">
                 🛒 Resumo do Pedido
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-full hover:bg-gray-100"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -288,7 +386,7 @@ function App() {
                   {cart.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg"
+                      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg shadow-sm"
                     >
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-800">
@@ -303,18 +401,18 @@ function App() {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity - 1)
                           }
-                          className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                          className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="w-8 text-center font-semibold">
+                        <span className="w-8 text-center font-semibold text-gray-800">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600"
+                          className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
@@ -322,8 +420,8 @@ function App() {
                     </div>
                   ))}
 
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center text-xl font-bold">
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="flex justify-between items-center text-xl font-bold text-gray-800">
                       <span>Total:</span>
                       <span className="text-green-600">
                         R$ {getTotalPrice().toFixed(2)}
@@ -331,35 +429,84 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <h4 className="font-semibold text-gray-800 mb-2">
                       📋 Dados do Cliente:
                     </h4>
-                    <p>
+                    <p className="text-sm text-gray-700">
                       <strong>Nome:</strong> {customer.name || "Não informado"}
                     </p>
-                    <p>
+                    <p className="text-sm text-gray-700">
                       <strong>Telefone:</strong>{" "}
                       {customer.phone || "Não informado"}
                     </p>
-                    <p>
+                    <p className="text-sm text-gray-700">
                       <strong>Email:</strong>{" "}
                       {customer.email || "Não informado"}
                     </p>
-                    <p>
+                    <p className="text-sm text-gray-700">
                       <strong>Endereço:</strong>{" "}
                       {customer.address || "Não informado"}
                     </p>
                   </div>
 
+                  {/* Mensagens de feedback */}
+                  {message.text && (
+                    <div
+                      className={`p-3 rounded-lg flex items-center space-x-2 ${
+                        message.type === "success"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {message.type === "success" ? (
+                        <CheckCircle className="w-5 h-5" />
+                      ) : (
+                        <XCircle className="w-5 h-5" />
+                      )}
+                      <p className="text-sm">{message.text}</p>
+                    </div>
+                  )}
+
                   <button
-                    onClick={sendToWhatsApp}
+                    onClick={sendToWhatsAppAndSheets}
                     disabled={
-                      cart.length === 0 || !customer.name || !customer.phone
+                      isLoading ||
+                      cart.length === 0 ||
+                      !customer.name ||
+                      !customer.phone
                     }
-                    className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                    className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
                   >
-                    📱 Enviar Pedido via WhatsApp
+                    {isLoading ? (
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                    ) : (
+                      <Phone className="w-5 h-5" />
+                    )}
+                    <span>
+                      {isLoading
+                        ? "Enviando Pedido..."
+                        : "Enviar Pedido via WhatsApp"}
+                    </span>
                   </button>
                 </div>
               )}
@@ -372,3 +519,4 @@ function App() {
 }
 
 export default App;
+
