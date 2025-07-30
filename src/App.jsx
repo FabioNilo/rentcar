@@ -1,410 +1,422 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  ShoppingCart,
-  Phone,
-  MapPin,
-  User,
-  Mail,
-  Plus,
-  Minus,
-  X,
   CheckCircle,
+  Monitor,
+  TrendingUp,
+  Users,
+  Zap,
+  ArrowRight,
+  Menu,
+  X,
+  Eye,
+  BarChart3,
+  Shield,
 } from "lucide-react";
-import { QUENTINHAS } from "./data.js";
-import neide from "./assets/neide.jpg";
 
-function App() {
-  const [cart, setCart] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // Novo estado para o modal de sucesso
-  const [customer, setCustomer] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    address: "",
-  });
+const QAObservabilityLanding = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const addToCart = (quentinha) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === quentinha.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.id === quentinha.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...quentinha, quantity: 1 }];
-    });
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
-    // Mostrar o modal de sucesso por 2 segundos
-    setShowSuccessModal(true);
-    setTimeout(() => {
-      setShowSuccessModal(false);
-    }, 2000); // 2000ms = 2 segundos
-  };
-
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const updateQuantity = (id, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(id);
-      return;
-    }
-    setCart((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
-  };
-
-  const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCustomer((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const sendToWhatsApp = () => {
-    const whatsappNumber = "557399825-3365";
-
-    let message = `🍽️ *NOVO PEDIDO - QUENTINHAS CONGELADAS*\n\n`;
-    message += `👤 *Cliente:* ${customer.name}\n`;
-    message += `📱 *Telefone:* ${customer.phone}\n`;
-    message += `📧 *Email:* ${customer.email}\n`;
-    message += `📍 *Endereço:* ${customer.address}\n\n`;
-
-    message += `🛒 *ITENS DO PEDIDO:*\n`;
-    cart.forEach((item) => {
-      message += `• ${item.name} (x${item.quantity}) - R$ ${(
-        item.price * item.quantity
-      ).toFixed(2)}\n`;
-    });
-
-    message += `\n💰 *TOTAL: R$ ${getTotalPrice().toFixed(2)}*`;
-
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
-
-    window.open(whatsappUrl, "_blank");
-
-    // Limpar carrinho e dados após envio
-    setCart([]);
-    setCustomer({ name: "", phone: "", email: "", address: "" });
-    setIsModalOpen(false);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+    <div className="bg-black text-gray-100 min-h-screen">
       {/* Header */}
-      {/* Adicionado 'fixed', 'top-0', 'left-0', 'right-0', 'z-40' para fixar o header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="bg-white rounded-full p-3">
-                <span className="text-2xl">
-                  <img
-                    src={neide}
-                    className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full object-cover"
-                    alt="Logo Neide Congelados"
-                  />
-                </span>
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">Neide congelados</h1>
-                <p className="text-orange-100">
-                  O sabor caseiro para sua praticidade total!
-                </p>
-              </div>
+      <header className="fixed top-0 w-full bg-black/95 backdrop-blur-sm z-50 border-b border-gray-800">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="text-2xl font-bold">
+              <span className="text-orange-500">QA</span> Observability
             </div>
-            <div className="relative">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-white text-orange-500 px-4 py-2 rounded-full flex items-center space-x-2 hover:bg-orange-50 transition-colors shadow-md"
+
+            {/* Desktop Menu */}
+            <nav className="hidden md:flex space-x-8">
+              <a
+                href="#solucoes"
+                className="hover:text-orange-500 transition-colors"
               >
-                <ShoppingCart className="w-5 h-5" />
-                <span className="font-semibold">Carrinho ({cart.length})</span>
-              </button>
-            </div>
+                Soluções
+              </a>
+              <a
+                href="#diferenciais"
+                className="hover:text-orange-500 transition-colors"
+              >
+                Diferenciais
+              </a>
+              <a
+                href="#sobre"
+                className="hover:text-orange-500 transition-colors"
+              >
+                Sobre
+              </a>
+              <a
+                href="#contato"
+                className="hover:text-orange-500 transition-colors"
+              >
+                Contato
+              </a>
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleMenu}
+              className="md:hidden text-gray-100 hover:text-orange-500"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <nav className="md:hidden mt-4 pb-4 border-t border-gray-800 pt-4">
+              <div className="flex flex-col space-y-4">
+                <a
+                  href="#solucoes"
+                  onClick={toggleMenu}
+                  className="hover:text-orange-500 transition-colors"
+                >
+                  Soluções
+                </a>
+                <a
+                  href="#diferenciais"
+                  onClick={toggleMenu}
+                  className="hover:text-orange-500 transition-colors"
+                >
+                  Diferenciais
+                </a>
+                <a
+                  href="#sobre"
+                  onClick={toggleMenu}
+                  className="hover:text-orange-500 transition-colors"
+                >
+                  Sobre
+                </a>
+                <a
+                  href="#contato"
+                  onClick={toggleMenu}
+                  className="hover:text-orange-500 transition-colors"
+                >
+                  Contato
+                </a>
+              </div>
+            </nav>
+          )}
         </div>
       </header>
-      {/* Adicionado padding-top para compensar o header fixo */}
-      <div className="pt-28">
-        {" "}
-        {/* Ajuste este valor conforme a altura do seu header */}
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-orange-400 to-red-400 text-white py-16">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-5xl font-bold mb-4">
-              🔥 QUENTINHAS Congeladas Premium
-            </h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Refeições completas, nutritivas e deliciosas. Descongele, aqueça e
-              saborei.
+
+      {/* Hero Section */}
+      <section className="pt-24 pb-20 px-6">
+        <div
+          className={`max-w-4xl mx-auto text-center transform transition-all duration-1000 ${
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+          }`}
+        >
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 bg-gray-900 px-4 py-2 rounded-full text-sm text-orange-500 mb-6">
+              <Eye size={16} />
+              Observabilidade em QA
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              Pare de descobrir bugs
+              <span className="text-orange-500 block">em produção</span>
+            </h1>
+            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Integramos{" "}
+              <strong className="text-orange-500">Observabilidade</strong> ao
+              seu ciclo de QA, garantindo qualidade contínua desde o
+              desenvolvimento até a produção.
             </p>
-            <div className="flex justify-center items-center space-x-8 text-lg">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">⚡</span>
-                <span>Prático e Rápido</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">🥩</span>
-                <span>Proteínas Premium</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl">❄️</span>
-                <span>Sempre Fresquinho</span>
-              </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <button className="bg-orange-500 hover:bg-orange-600 text-black font-semibold px-8 py-4 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2">
+              Análise Gratuita
+              <ArrowRight size={20} />
+            </button>
+            <button className="border-2 border-gray-700 hover:border-orange-500 text-gray-100 font-semibold px-8 py-4 rounded-lg transition-all">
+              Ver Cases de Sucesso
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-500 mb-2">40%</div>
+              <div className="text-gray-400">Redução em bugs</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-500 mb-2">5x</div>
+              <div className="text-gray-400">Menor custo de correção</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-500 mb-2">15+</div>
+              <div className="text-gray-400">Empresas validaram</div>
             </div>
           </div>
-        </section>
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Products Section */}
-            <div className="lg:col-span-2">
-              <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-                🍽️ Nossos Sabores
+        </div>
+      </section>
+
+      {/* Problem Section */}
+      <section className="py-20 px-6 bg-gray-900/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              O Problema que Resolvemos
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Empresas perdem tempo e dinheiro corrigindo bugs em produção
+              porque seus times de QA não têm visibilidade em tempo real do
+              comportamento do software.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-black/50 p-8 rounded-xl border border-gray-800">
+              <div className="text-red-400 mb-4">
+                <TrendingUp size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">
+                Bugs Custosos em Produção
               </h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                {QUENTINHAS.map((quentinha) => (
-                  <div
-                    key={quentinha.id}
-                    className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow"
-                  >
-                    <img
-                      src={quentinha.image}
-                      alt={quentinha.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-6">
-                      <h4 className="text-xl font-bold text-gray-800 mb-2">
-                        {quentinha.name}
-                      </h4>
-                      <div className="bg-orange-100 border-l-4 border-orange-500 p-3 mb-4">
-                        <p className="text-sm text-orange-700 font-semibold mb-1">
-                          🥩 Proteína: {quentinha.protein}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {quentinha.ingredients}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-green-600">
-                          R$ {quentinha.price.toFixed(2)}
-                        </span>
-                        <button
-                          onClick={() => addToCart(quentinha)}
-                          className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-full hover:from-orange-600 hover:to-red-600 transition-all font-semibold shadow-lg hover:shadow-xl"
-                        >
-                          Adicionar ao Carrinho
-                        </button>
-                      </div>
+              <p className="text-gray-300">
+                Times investem em testes automatizados, mas ainda sofrem com
+                falhas críticas que poderiam ser prevenidas com observabilidade
+                adequada.
+              </p>
+            </div>
+
+            <div className="bg-black/50 p-8 rounded-xl border border-gray-800">
+              <div className="text-red-400 mb-4">
+                <Users size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">
+                Desalinhamento de Times
+              </h3>
+              <p className="text-gray-300">
+                DevOps/SRE usam ferramentas como Datadog e Grafana, mas QA não
+                tem acesso a esses dados críticos para melhorar os testes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Solutions Section */}
+      <section id="solucoes" className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">Nossas Soluções</h2>
+            <p className="text-xl text-gray-300">
+              Integramos QA e Observabilidade para qualidade contínua
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-orange-500/50 transition-all">
+              <div className="flex items-start gap-6">
+                <div className="bg-orange-500/20 p-4 rounded-lg">
+                  <Monitor className="text-orange-500" size={32} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold mb-4">
+                    Consultoria em QA + Observabilidade
+                  </h3>
+                  <p className="text-gray-300 mb-6">
+                    Ajudamos empresas a integrar ferramentas de monitoramento
+                    aos processos de teste e treinamos times de QA para analisar
+                    dados de produção.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="text-orange-500" size={20} />
+                      <span>Integração APM, logs e métricas</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="text-orange-500" size={20} />
+                      <span>Treinamento de times QA</span>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
 
-            {/* Customer Form */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 h-fit">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                📝 Seus Dados
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-orange-500/50 transition-all">
+              <div className="flex items-start gap-6">
+                <div className="bg-orange-500/20 p-4 rounded-lg">
+                  <BarChart3 className="text-orange-500" size={32} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold mb-4">
+                    Testes Terceirizados com Observabilidade
+                  </h3>
+                  <p className="text-gray-300 mb-6">
+                    Testes contínuos baseados em dados reais de produção,
+                    priorizando funcionalidades com mais erros e fornecendo
+                    relatórios inteligentes.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="text-orange-500" size={20} />
+                      <span>Testes baseados em dados reais</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="text-orange-500" size={20} />
+                      <span>Relatórios com padrões de falha</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Differentials Section */}
+      <section id="diferenciais" className="py-20 px-6 bg-gray-900/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">Nossos Diferenciais</h2>
+            <p className="text-xl text-gray-300">
+              O que nos torna únicos no mercado de QA
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-orange-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Eye className="text-orange-500" size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">
+                Visibilidade Completa
               </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <User className="w-4 h-4 inline mr-2" />
-                    Nome Completo
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={customer.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Seu nome completo"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Phone className="w-4 h-4 inline mr-2" />
-                    Telefone
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={customer.phone}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="(11) 99999-9999"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Mail className="w-4 h-4 inline mr-2" />
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={customer.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="seu.email@exemplo.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <MapPin className="w-4 h-4 inline mr-2" />
-                    Endereço de Entrega
-                  </label>
-                  <textarea
-                    name="address"
-                    value={customer.address}
-                    onChange={handleInputChange}
-                    rows="3"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="Rua, número, bairro, cidade, CEP"
-                  />
-                </div>
+              <p className="text-gray-300">
+                Primeira consultoria a integrar Observabilidade nativamente ao
+                processo de QA
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-orange-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Zap className="text-orange-500" size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Detecção Proativa</h3>
+              <p className="text-gray-300">
+                Identificamos problemas antes que cheguem à produção usando
+                dados em tempo real
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-orange-500/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Shield className="text-orange-500" size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-4">Qualidade Contínua</h3>
+              <p className="text-gray-300">
+                Garantimos qualidade desde o desenvolvimento até a produção, não
+                apenas no código
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Founders Section */}
+      <section id="sobre" className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">Sobre os Fundadores</h2>
+            <p className="text-xl text-gray-300">
+              Experiência real com os problemas que resolvemos
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800">
+              <h3 className="text-xl font-semibold mb-4">
+                Ex-Engenheiro de QA
+              </h3>
+              <p className="text-gray-300 mb-4">
+                Trabalhou em uma fintech que enfrentou um bug crítico em
+                produção causando prejuízo. Percebeu que com acesso a métricas
+                em tempo real, o problema teria sido detectado antes.
+              </p>
+              <div className="text-sm text-orange-500">
+                Especialista em Quality Assurance
+              </div>
+            </div>
+
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800">
+              <h3 className="text-xl font-semibold mb-4">
+                Especialista em DevOps
+              </h3>
+              <p className="text-gray-300 mb-4">
+                Viu que times de SRE já usam Observabilidade para monitorar
+                sistemas, mas não compartilham esses dados com QA, criando um
+                gap crítico.
+              </p>
+              <div className="text-sm text-orange-500">
+                Expert em DevOps & SRE
               </div>
             </div>
           </div>
         </div>
-      </div>{" "}
-      {/* Fim do padding-top div */}
-      {/* Modal de Resumo do Pedido */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h3 className="text-2xl font-bold text-gray-800">
-                🛒 Resumo do Pedido
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+      </section>
 
-            <div className="p-6">
-              {cart.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">Carrinho vazio</p>
-              ) : (
-                <div className="space-y-4">
-                  {cart.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between bg-gray-50 p-4 rounded-lg"
-                    >
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800">
-                          {item.name}
-                        </h4>
-                        <p className="text-green-600 font-bold">
-                          R$ {item.price.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="w-8 text-center font-semibold">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+      {/* CTA Section */}
+      <section
+        id="contato"
+        className="py-20 px-6 bg-gradient-to-r from-orange-600 to-orange-500"
+      >
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-black mb-6">
+            Pronto para Transformar seu QA?
+          </h2>
+          <p className="text-xl text-black/80 mb-8 max-w-2xl mx-auto">
+            Oferecemos uma análise gratuita para identificar gaps em seu
+            processo de QA e mostrar como a observabilidade pode transformar sua
+            qualidade.
+          </p>
 
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center text-xl font-bold">
-                      <span>Total:</span>
-                      <span className="text-green-600">
-                        R$ {getTotalPrice().toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-800 mb-2">
-                      📋 Dados do Cliente:
-                    </h4>
-                    <p>
-                      <strong>Nome:</strong> {customer.name || "Não informado"}
-                    </p>
-                    <p>
-                      <strong>Telefone:</strong>{" "}
-                      {customer.phone || "Não informado"}
-                    </p>
-                    <p>
-                      <strong>Email:</strong>{" "}
-                      {customer.email || "Não informado"}
-                    </p>
-                    <p>
-                      <strong>Endereço:</strong>{" "}
-                      {customer.address || "Não informado"}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={sendToWhatsApp}
-                    disabled={
-                      cart.length === 0 || !customer.name || !customer.phone
-                    }
-                    className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                  >
-                    📱 Enviar Pedido via WhatsApp
-                  </button>
-                </div>
-              )}
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-black hover:bg-gray-900 text-white font-semibold px-8 py-4 rounded-lg transition-all transform hover:scale-105">
+              Agendar Análise Gratuita
+            </button>
+            <button className="border-2 border-black hover:bg-black hover:text-white text-black font-semibold px-8 py-4 rounded-lg transition-all">
+              Falar com Especialista
+            </button>
           </div>
         </div>
-      )}
-      {/* Novo Modal de Sucesso (Item Adicionado) */}
-      {showSuccessModal && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-down">
-          <CheckCircle className="w-6 h-6" />
-          <span className="font-semibold">Item adicionado ao carrinho!</span>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 bg-black border-t border-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="text-2xl font-bold mb-4">
+              <span className="text-orange-500">QA</span> Observability
+              Solutions
+            </div>
+            <p className="text-gray-400">
+              Integrando Observabilidade ao QA para qualidade contínua
+            </p>
+          </div>
+
+          <div className="text-center text-gray-500 text-sm">
+            <p>
+              &copy; 2024 QA Observability Solutions. Todos os direitos
+              reservados.
+            </p>
+          </div>
         </div>
-      )}
-      {/* Adicione estilos para a animação do modal de sucesso */}
-      <style>{`
-        @keyframes fade-in-down {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in-down {
-          animation: fade-in-down 0.3s ease-out forwards;
-        }
-      `}</style>
+      </footer>
     </div>
   );
-}
+};
 
-export default App;
+export default QAObservabilityLanding;
