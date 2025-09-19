@@ -23,7 +23,7 @@ export default function CarRentalLanding() {
       id: 1,
       name: "Fiat Argo",
       category: "Popular",
-      image: "../src/assets/argo.jpeg",
+      image: "../src/assets/argo2.jpg",
       features: [
         "Ar condicionado",
         "Direção elétrica",
@@ -35,14 +35,14 @@ export default function CarRentalLanding() {
       id: 2,
       name: "Jeep Renegade",
       category: "SUV",
-      image: "../src/assets/renegade.jpeg",
+      image: "../src/assets/renegade.jpg",
       features: ["SUV 4x4", "Automático", "Ar digital", "Multimidia"],
     },
     {
       id: 3,
       name: "Chevrolet Spin",
       category: "7 Lugares",
-      image: "../src/assets/spin.jpeg",
+      image: "../src/assets/spin.jpg",
       features: [
         "7 lugares",
         "Ideal para famílias",
