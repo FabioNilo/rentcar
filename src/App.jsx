@@ -78,7 +78,7 @@ export default function CarRentalLanding() {
 
   const handleWhatsApp = () => {
     window.open(
-      "https://wa.me/5573811681522?text=Olá! Gostaria de alugar um veículo na Costa das Baleias.",
+      "https://wa.me/5573981168152?text=Olá! Gostaria de alugar um veículo na Costa das Baleias.",
       "_blank"
     );
   };
@@ -98,7 +98,7 @@ export default function CarRentalLanding() {
             <div className="hidden md:flex items-center space-x-6">
               <div className="flex items-center space-x-1 text-gray-700">
                 <Phone className="w-4 h-4" />
-                <span>+55 73 8116-8152</span>
+                <span>073 981168152</span>
               </div>
               <div className="flex items-center space-x-1 text-gray-700">
                 <MapPin className="w-4 h-4" />
