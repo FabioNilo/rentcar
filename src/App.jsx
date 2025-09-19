@@ -14,6 +14,9 @@ import {
 import lukasImg from "./assets/lukas.jpg";
 import porto from "./assets/porto.jpg";
 import arraial from "./assets/arraial.jpg";
+import argo from "./assets/argo2.jpg";
+import renegade from "./assets/renegade.jpg";
+import spin from "./assets/spin.jpg";
 
 export default function CarRentalLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +26,7 @@ export default function CarRentalLanding() {
       id: 1,
       name: "Fiat Argo",
       category: "Popular",
-      image: "../public/argo2.jpg",
+      image: argo,
       features: [
         "Ar condicionado",
         "Direção elétrica",
@@ -35,14 +38,14 @@ export default function CarRentalLanding() {
       id: 2,
       name: "Jeep Renegade",
       category: "SUV",
-      image: "../public/renegade.jpg",
+      image: renegade,
       features: ["SUV 4x4", "Automático", "Ar digital", "Multimidia"],
     },
     {
       id: 3,
       name: "Chevrolet Spin",
       category: "7 Lugares",
-      image: "../public/spin.jpg",
+      image: spin,
       features: [
         "7 lugares",
         "Ideal para famílias",
@@ -50,12 +53,6 @@ export default function CarRentalLanding() {
         "Porta-malas amplo",
       ],
     },
-  ];
-
-  const heroImages = [
-    "../src/assets/arraial.jpeg",
-    "../src/assets/igreja.jpeg",
-    "../src/assets/trancoso.jpeg",
   ];
 
   const services = [
